@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tests Matemáticos por Curso</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .question {
+      margin: 20px 0;
+      padding: 10px;
+      background: #ecf0f1;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Generador de Tests Matemáticos</h1>
+
+    <label for="curso">Selecciona el curso:</label>
+    <select id="curso" onchange="actualizarTemas()">
+      <option value="1primaria">1º Primaria</option>
+      <option value="2primaria">2º Primaria</option>
+      <option value="3primaria">3º Primaria</option>
+      <option value="4primaria">4º Primaria</option>
+      <option value="5primaria">5º Primaria</option>
+      <option value="6primaria">6º Primaria</option>
+      <option value="1eso">1º ESO</option>
+      <option value="2eso">2º ESO</option>
+      <option value="3eso">3º ESO</option>
+      <option value="4eso">4º ESO</option>
+    </select>
+
+    <label for="tema">Selecciona el tema:</label>
+    <select id="tema">
+      <!-- Se actualiza con JS -->
+    </select>
+
+    <button onclick="generarPreguntas()">Generar Test</button>
+
+    <div id="testContainer"></div>
+  </div>
+
+  <script>
+    const temasPorCurso = {
+      "1primaria": ["Números hasta el 100", "Sumas y restas", "Figuras geométricas"],
+      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas", "Medidas de longitud"],
+      "3primaria": ["Multiplicación y división", "Fracciones simples", "Tablas de multiplicar"],
+      "4primaria": ["Fracciones y decimales", "División con decimales", "Polígonos"],
+      "5primaria": ["Números grandes", "Porcentajes", "Volumen y masa"],
+      "6primaria": ["Potencias y raíces", "Proporcionalidad", "Probabilidad básica"],
+      "1eso": ["Operaciones con enteros", "Ecuaciones de primer grado", "Funciones"],
+      "2eso": ["Polinomios", "Sistemas de ecuaciones", "Geometría plana"],
+      "3eso": ["Radicales", "Estadística", "Trigonometría básica"],
+      "4eso": ["Funciones cuadráticas", "Probabilidad avanzada", "Vectores"]
+    };
+
+    function actualizarTemas() {
+      const curso = document.getElementById("curso").value;
+      const temaSelect = document.getElementById("tema");
+      temaSelect.innerHTML = "";
+      temasPorCurso[curso].forEach(tema => {
+        const option = document.createElement("option");
+        option.value = tema;
+        option.textContent = tema;
+        temaSelect.appendChild(option);
+      });
+    }
+
+    function generarPreguntas() {
+      const curso = document.getElementById("curso").value;
+      const tema = document.getElementById("tema").value;
+      const contenedor = document.getElementById("testContainer");
+      contenedor.innerHTML = '';
+
+      for (let i = 1; i <= 5; i++) {
+        const div = document.createElement("div");
+        div.classList.add("question");
+        div.innerText = `Pregunta ${i} sobre "${tema}" (${curso.toUpperCase()}): ¿Cuánto es ${i + 2} + ${i + 3}?`;
+        contenedor.appendChild(div);
+      }
+    }
+
+    // Inicializar
+    actualizarTemas();
+  </script>
+</body>
+</html>
