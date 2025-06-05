@@ -23,7 +23,7 @@
       text-align: center;
       color: #2c3e50;
     }
-    select, button {
+    select, button, input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -37,6 +37,12 @@
       background: #ecf0f1;
       border-radius: 8px;
     }
+    .correct {
+      background: #d4edda;
+    }
+    .incorrect {
+      background: #f8d7da;
+    }
   </style>
 </head>
 <body>
@@ -48,37 +54,55 @@
       <option value="1primaria">1º Primaria</option>
       <option value="2primaria">2º Primaria</option>
       <option value="3primaria">3º Primaria</option>
-      <option value="4primaria">4º Primaria</option>
-      <option value="5primaria">5º Primaria</option>
-      <option value="6primaria">6º Primaria</option>
-      <option value="1eso">1º ESO</option>
-      <option value="2eso">2º ESO</option>
-      <option value="3eso">3º ESO</option>
-      <option value="4eso">4º ESO</option>
     </select>
 
     <label for="tema">Selecciona el tema:</label>
-    <select id="tema">
-      <!-- Se actualiza con JS -->
-    </select>
+    <select id="tema"></select>
 
     <button onclick="generarPreguntas()">Generar Test</button>
+    <button onclick="corregirPreguntas()">Corregir Test</button>
 
     <div id="testContainer"></div>
   </div>
 
   <script>
     const temasPorCurso = {
-      "1primaria": ["Números hasta el 100", "Sumas y restas", "Figuras geométricas"],
-      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas", "Medidas de longitud"],
-      "3primaria": ["Multiplicación y división", "Fracciones simples", "Tablas de multiplicar"],
-      "4primaria": ["Fracciones y decimales", "División con decimales", "Polígonos"],
-      "5primaria": ["Números grandes", "Porcentajes", "Volumen y masa"],
-      "6primaria": ["Potencias y raíces", "Proporcionalidad", "Probabilidad básica"],
-      "1eso": ["Operaciones con enteros", "Ecuaciones de primer grado", "Funciones"],
-      "2eso": ["Polinomios", "Sistemas de ecuaciones", "Geometría plana"],
-      "3eso": ["Radicales", "Estadística", "Trigonometría básica"],
-      "4eso": ["Funciones cuadráticas", "Probabilidad avanzada", "Vectores"]
+      "1primaria": ["Números hasta el 100", "Sumas y restas"],
+      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
+      "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
+    };
+
+    const preguntasPorCursoTema = {
+      "1primaria": {
+        "Números hasta el 100": [
+          { pregunta: "¿Cuánto es 25 + 17?", respuesta: "42" },
+          { pregunta: "¿Qué número viene después del 58?", respuesta: "59" }
+        ],
+        "Sumas y restas": [
+          { pregunta: "¿Cuánto es 9 + 6?", respuesta: "15" },
+          { pregunta: "¿Cuánto es 20 - 8?", respuesta: "12" }
+        ]
+      },
+      "2primaria": {
+        "Números hasta el 1000": [
+          { pregunta: "¿Cuánto es 134 + 266?", respuesta: "400" },
+          { pregunta: "¿Cuánto es 700 - 350?", respuesta: "350" }
+        ],
+        "Multiplicaciones básicas": [
+          { pregunta: "¿Cuánto es 7 x 6?", respuesta: "42" },
+          { pregunta: "¿Cuánto es 9 x 3?", respuesta: "27" }
+        ]
+      },
+      "3primaria": {
+        "Fracciones simples": [
+          { pregunta: "Escribe la mitad de 8", respuesta: "4" },
+          { pregunta: "¿Cuánto es 1/2 de 10?", respuesta: "5" }
+        ],
+        "Tablas de multiplicar": [
+          { pregunta: "¿Cuánto es 6 x 7?", respuesta: "42" },
+          { pregunta: "¿Cuánto es 8 x 5?", respuesta: "40" }
+        ]
+      }
     };
 
     function actualizarTemas() {
@@ -97,18 +121,37 @@
       const curso = document.getElementById("curso").value;
       const tema = document.getElementById("tema").value;
       const contenedor = document.getElementById("testContainer");
-      contenedor.innerHTML = '';
+      contenedor.innerHTML = "";
 
-      for (let i = 1; i <= 5; i++) {
+      const preguntas = preguntasPorCursoTema[curso][tema];
+
+      preguntas.forEach((item, i) => {
         const div = document.createElement("div");
         div.classList.add("question");
-        div.innerText = `Pregunta ${i} sobre "${tema}" (${curso.toUpperCase()}): ¿Cuánto es ${i + 2} + ${i + 3}?`;
+        div.innerHTML = `
+          <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
+          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
+        `;
         contenedor.appendChild(div);
-      }
+      });
     }
 
-    // Inicializar
+    function corregirPreguntas() {
+      const inputs = document.querySelectorAll("input[type='text']");
+      inputs.forEach(input => {
+        const userAnswer = input.value.trim();
+        const correctAnswer = input.dataset.correcta;
+        input.parentElement.classList.remove("correct", "incorrect");
+        if (userAnswer === correctAnswer) {
+          input.parentElement.classList.add("correct");
+        } else {
+          input.parentElement.classList.add("incorrect");
+        }
+      });
+    }
+
     actualizarTemas();
   </script>
 </body>
 </html>
+
