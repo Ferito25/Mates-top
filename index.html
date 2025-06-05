@@ -86,6 +86,15 @@
     });
   }
 
+  function mezclarArray(array) {
+    // Algoritmo Fisher-Yates para mezclar array
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
   async function generarPreguntas() {
     const curso = document.getElementById("curso").value;
     const tema = document.getElementById("tema").value;
@@ -97,13 +106,18 @@
       if (!response.ok) throw new Error('Error al cargar preguntas');
       const data = await response.json();
 
+      let preguntas = data.preguntas;
+      preguntas = mezclarArray(preguntas); // Mezclar preguntas
+      preguntas = preguntas.slice(0, 5);   // Limitar a 5 preguntas máximo
+
       contenedor.innerHTML = "";
-      data.preguntas.forEach((item, i) => {
+      preguntas.forEach((item, i) => {
         const div = document.createElement("div");
         div.classList.add("question");
         div.innerHTML = `
           <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
-          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
+          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" autocomplete="off" />
+          <p class="feedback" id="feedback_${i}" style="display:none; margin-top: 8px;"></p>
         `;
         contenedor.appendChild(div);
       });
@@ -118,17 +132,26 @@
     inputs.forEach(input => {
       const userAnswer = input.value.trim();
       const correctAnswer = input.dataset.correcta;
+      const feedback = document.getElementById(`feedback_${input.id.split('_')[1]}`);
+
       input.parentElement.classList.remove("correct", "incorrect");
-      if (userAnswer === correctAnswer) {
+
+      if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
         input.parentElement.classList.add("correct");
+        feedback.style.display = "none";
+        feedback.textContent = "";
       } else {
         input.parentElement.classList.add("incorrect");
+        feedback.style.display = "block";
+        feedback.style.color = "#721c24"; // rojo oscuro
+        feedback.textContent = `Respuesta correcta: ${correctAnswer}`;
       }
     });
   }
 
   actualizarTemas();
 </script>
+
 </body>
 </html>
 
