@@ -14,15 +14,33 @@
       font-family: 'Segoe UI', sans-serif;
       background: #f0f4f8;
       margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .page-wrapper {
+      display: flex;
+      max-width: 1100px;
+      width: 100%;
       padding: 20px;
+      box-sizing: border-box;
+      gap: 20px;
+    }
+    .sidebar-ad {
+      width: 160px; /* ancho típico para anuncios verticales */
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
     }
     .container {
-      max-width: 800px;
-      margin: auto;
+      flex-grow: 1;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 800px;
+      box-sizing: border-box;
     }
     h1, h2 {
       text-align: center;
@@ -35,6 +53,7 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box;
     }
     .question {
       margin: 20px 0;
@@ -48,107 +67,151 @@
     .incorrect {
       background: #f8d7da;
     }
+
+    /* Responsive: ocultar anuncios laterales en móviles */
+    @media (max-width: 900px) {
+      .sidebar-ad {
+        display: none;
+      }
+      body {
+        padding: 20px;
+      }
+      .page-wrapper {
+        max-width: 100%;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Generador de Tests Matemáticos</h1>
+  <div class="page-wrapper">
 
-    <!-- Aquí puedes poner un anuncio -->
-    <ins class="adsbygoogle"
-         style="display:block; text-align:center;"
-         data-ad-client="ca-pub-1079922671750751"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+    <!-- Anuncio lateral izquierdo -->
+    <div class="sidebar-ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1079922671750751"
+           data-ad-slot="1111111111"
+           data-ad-format="vertical"
+           data-full-width-responsive="false"></ins>
+    </div>
 
-    <label for="curso">Selecciona el curso:</label>
-    <select id="curso" onchange="actualizarTemas()">
-      <option value="1primaria">1º Primaria</option>
-      <option value="2primaria">2º Primaria</option>
-      <option value="3primaria">3º Primaria</option>
-    </select>
+    <!-- Contenido principal -->
+    <div class="container">
+      <h1>Generador de Tests Matemáticos</h1>
 
-    <label for="tema">Selecciona el tema:</label>
-    <select id="tema"></select>
+      <label for="curso">Selecciona el curso:</label>
+      <select id="curso" onchange="actualizarTemas()">
+        <option value="1primaria">1º Primaria</option>
+        <option value="2primaria">2º Primaria</option>
+        <option value="3primaria">3º Primaria</option>
+      </select>
 
-    <button onclick="generarPreguntas()">Generar Test</button>
-    <button onclick="corregirPreguntas()">Corregir Test</button>
+      <label for="tema">Selecciona el tema:</label>
+      <select id="tema"></select>
 
-    <div id="testContainer"></div>
+      <button onclick="generarPreguntas()">Generar Test</button>
+      <button onclick="corregirPreguntas()">Corregir Test</button>
+
+      <div id="testContainer"></div>
+    </div>
+
+    <!-- Anuncio lateral derecho -->
+    <div class="sidebar-ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1079922671750751"
+           data-ad-slot="2222222222"
+           data-ad-format="vertical"
+           data-full-width-responsive="false"></ins>
+    </div>
+
   </div>
 
-<script>
-  const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    (adsbygoogle = window.adsbygoogle || []).push({});
 
-  const temasPorCurso = {
-    "1primaria": ["Números hasta el 100", "Sumas y restas"],
-    "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
-    "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
-  };
+    const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
 
-  function actualizarTemas() {
-    const curso = document.getElementById("curso").value;
-    const temaSelect = document.getElementById("tema");
-    temaSelect.innerHTML = "";
-    temasPorCurso[curso].forEach(tema => {
-      const option = document.createElement("option");
-      option.value = tema;
-      option.textContent = tema;
-      temaSelect.appendChild(option);
-    });
-  }
+    const temasPorCurso = {
+      "1primaria": ["Números hasta el 100", "Sumas y restas"],
+      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
+      "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
+    };
 
-  async function generarPreguntas() {
-    const curso = document.getElementById("curso").value;
-    const tema = document.getElementById("tema").value;
-    const contenedor = document.getElementById("testContainer");
-    contenedor.innerHTML = "Cargando preguntas...";
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-      if (!response.ok) throw new Error('Error al cargar preguntas');
-      const data = await response.json();
-
-      contenedor.innerHTML = "";
-      data.preguntas.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.classList.add("question");
-        div.innerHTML = `
-          <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
-          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
-        `;
-        contenedor.appendChild(div);
+    function actualizarTemas() {
+      const curso = document.getElementById("curso").value;
+      const temaSelect = document.getElementById("tema");
+      temaSelect.innerHTML = "";
+      temasPorCurso[curso].forEach(tema => {
+        const option = document.createElement("option");
+        option.value = tema;
+        option.textContent = tema;
+        temaSelect.appendChild(option);
       });
-    } catch (error) {
-      contenedor.innerHTML = "No se pudieron cargar las preguntas. Intenta más tarde.";
-      console.error(error);
     }
-  }
 
-  function corregirPreguntas() {
-    const inputs = document.querySelectorAll("input[type='text']");
-    inputs.forEach(input => {
-      const userAnswer = input.value.trim();
-      const correctAnswer = input.dataset.correcta;
-      input.parentElement.classList.remove("correct", "incorrect");
-      if (userAnswer === correctAnswer) {
-        input.parentElement.classList.add("correct");
-      } else {
-        input.parentElement.classList.add("incorrect");
-        // Mostrar la respuesta correcta para quien no acierte
-        input.parentElement.innerHTML += `<p><em>Respuesta correcta: ${correctAnswer}</em></p>`;
+    async function generarPreguntas() {
+      const curso = document.getElementById("curso").value;
+      const tema = document.getElementById("tema").value;
+      const contenedor = document.getElementById("testContainer");
+      contenedor.innerHTML = "Cargando preguntas...";
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+        if (!response.ok) throw new Error('Error al cargar preguntas');
+        const data = await response.json();
+
+        contenedor.innerHTML = "";
+        data.preguntas.forEach((item, i) => {
+          const div = document.createElement("div");
+          div.classList.add("question");
+          div.innerHTML = `
+            <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
+            <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        contenedor.innerHTML = "No se pudieron cargar las preguntas. Intenta más tarde.";
+        console.error(error);
       }
-    });
-  }
+    }
 
-  actualizarTemas();
-</script>
+    function corregirPreguntas() {
+      const inputs = document.querySelectorAll("input[type='text']");
+      inputs.forEach(input => {
+        const userAnswer = input.value.trim();
+        const correctAnswer = input.dataset.correcta;
+        input.parentElement.classList.remove("correct", "incorrect");
+        // Eliminar mensaje de respuesta correcta previo si existe
+        const existingMsg = input.parentElement.querySelector('p.em-correcta');
+        if (existingMsg) existingMsg.remove();
+
+        if (userAnswer === correctAnswer) {
+          input.parentElement.classList.add("correct");
+        } else {
+          input.parentElement.classList.add("incorrect");
+          // Mostrar la respuesta correcta para quien no acierte
+          const p = document.createElement('p');
+          p.classList.add('em-correcta');
+          p.style.fontStyle = 'italic';
+          p.style.marginTop = '5px';
+          p.textContent = `Respuesta correcta: ${correctAnswer}`;
+          input.parentElement.appendChild(p);
+        }
+      });
+    }
+
+    actualizarTemas();
+  </script>
 </body>
 </html>
+
 
 
 
