@@ -93,7 +93,7 @@
     contenedor.innerHTML = "Cargando preguntas...";
 
     try {
-      const response = await fetch(`${https://subsequent-faceted-marlin.glitch.me/}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+      const response = await fetch(`${BACKEND_URL}/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
       if (!response.ok) throw new Error('Error al cargar preguntas');
       const data = await response.json();
 
