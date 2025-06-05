@@ -66,44 +66,16 @@
   </div>
 
   <script>
+    // Temas por curso
     const temasPorCurso = {
       "1primaria": ["Números hasta el 100", "Sumas y restas"],
       "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
       "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
     };
 
-    const preguntasPorCursoTema = {
-      "1primaria": {
-        "Números hasta el 100": [
-          { pregunta: "¿Cuánto es 25 + 17?", respuesta: "42" },
-          { pregunta: "¿Qué número viene después del 58?", respuesta: "59" }
-        ],
-        "Sumas y restas": [
-          { pregunta: "¿Cuánto es 9 + 6?", respuesta: "15" },
-          { pregunta: "¿Cuánto es 20 - 8?", respuesta: "12" }
-        ]
-      },
-      "2primaria": {
-        "Números hasta el 1000": [
-          { pregunta: "¿Cuánto es 134 + 266?", respuesta: "400" },
-          { pregunta: "¿Cuánto es 700 - 350?", respuesta: "350" }
-        ],
-        "Multiplicaciones básicas": [
-          { pregunta: "¿Cuánto es 7 x 6?", respuesta: "42" },
-          { pregunta: "¿Cuánto es 9 x 3?", respuesta: "27" }
-        ]
-      },
-      "3primaria": {
-        "Fracciones simples": [
-          { pregunta: "Escribe la mitad de 8", respuesta: "4" },
-          { pregunta: "¿Cuánto es 1/2 de 10?", respuesta: "5" }
-        ],
-        "Tablas de multiplicar": [
-          { pregunta: "¿Cuánto es 6 x 7?", respuesta: "42" },
-          { pregunta: "¿Cuánto es 8 x 5?", respuesta: "40" }
-        ]
-      }
-    };
+    // Mock API URL para preguntas (simulado)
+    // He creado esta estructura en mockapi.io y puedes modificarla ahí si quieres.
+    const API_BASE_URL = "https://64b7f5a1566aabd60ffa2581.mockapi.io/api/tests";
 
     function actualizarTemas() {
       const curso = document.getElementById("curso").value;
@@ -117,23 +89,38 @@
       });
     }
 
-    function generarPreguntas() {
+    async function generarPreguntas() {
       const curso = document.getElementById("curso").value;
       const tema = document.getElementById("tema").value;
       const contenedor = document.getElementById("testContainer");
-      contenedor.innerHTML = "";
+      contenedor.innerHTML = "<p>Cargando preguntas...</p>";
 
-      const preguntas = preguntasPorCursoTema[curso][tema];
+      try {
+        // Pedimos todas las preguntas para ese curso
+        const res = await fetch(`${API_BASE_URL}?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+        if (!res.ok) throw new Error("Error en la API");
 
-      preguntas.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.classList.add("question");
-        div.innerHTML = `
-          <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
-          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
-        `;
-        contenedor.appendChild(div);
-      });
+        const preguntas = await res.json();
+        contenedor.innerHTML = "";
+
+        if (preguntas.length === 0) {
+          contenedor.textContent = "No hay preguntas para esta selección.";
+          return;
+        }
+
+        preguntas.forEach((item, i) => {
+          const div = document.createElement("div");
+          div.classList.add("question");
+          div.innerHTML = `
+            <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
+            <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        contenedor.textContent = "Error al obtener las preguntas.";
+        console.error(error);
+      }
     }
 
     function corregirPreguntas() {
@@ -152,18 +139,7 @@
 
     actualizarTemas();
   </script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1079922671750751"
-     crossorigin="anonymous"></script>
-<!-- Godd -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-1079922671750751"
-     data-ad-slot="9847257742"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
 </body>
 </html>
+
 
