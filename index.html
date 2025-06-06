@@ -4,46 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tests Matemáticos por Curso</title>
-
-  <!-- Google AdSense -->
+  <!-- AdSense script en head -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1079922671750751"
-     crossorigin="anonymous"></script>
-
+    crossorigin="anonymous"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f0f4f8;
       margin: 0;
       padding: 20px;
-      display: flex;
-      justify-content: center;
-      position: relative;
-    }
-    .ads-side {
-      position: fixed;
-      top: 100px;
-      width: 160px;
-      height: 600px;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      overflow: hidden;
-      z-index: 1000;
-    }
-    .ads-left {
-      left: 10px;
-    }
-    .ads-right {
-      right: 10px;
     }
     .container {
       max-width: 800px;
-      width: 100%;
+      margin: auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      box-sizing: border-box;
     }
     h1, h2 {
       text-align: center;
@@ -56,7 +33,6 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 16px;
-      box-sizing: border-box;
     }
     .question {
       margin: 20px 0;
@@ -73,16 +49,6 @@
   </style>
 </head>
 <body>
-  <!-- Ads left -->
-  <div class="ads-side ads-left">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-1079922671750751"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-  </div>
-
   <div class="container">
     <h1>Generador de Tests Matemáticos</h1>
 
@@ -102,94 +68,78 @@
     <div id="testContainer"></div>
   </div>
 
-  <!-- Ads right -->
-  <div class="ads-side ads-right">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-1079922671750751"
-         data-ad-slot="0987654321"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-  </div>
+  <script>
+    const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
 
-<script>
-  const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
+    const temasPorCurso = {
+      "1primaria": ["Números hasta el 100", "Sumas y restas"],
+      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
+      "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
+    };
 
-  const temasPorCurso = {
-    "1primaria": ["Números hasta el 100", "Sumas y restas"],
-    "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
-    "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
-  };
-
-  function actualizarTemas() {
-    const curso = document.getElementById("curso").value;
-    const temaSelect = document.getElementById("tema");
-    temaSelect.innerHTML = "";
-    temasPorCurso[curso].forEach(tema => {
-      const option = document.createElement("option");
-      option.value = tema;
-      option.textContent = tema;
-      temaSelect.appendChild(option);
-    });
-  }
-
-  async function generarPreguntas() {
-    const curso = document.getElementById("curso").value;
-    const tema = document.getElementById("tema").value;
-    const contenedor = document.getElementById("testContainer");
-    contenedor.innerHTML = "Cargando preguntas...";
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-      if (!response.ok) throw new Error('Error al cargar preguntas');
-      const data = await response.json();
-
-      contenedor.innerHTML = "";
-      data.preguntas.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.classList.add("question");
-        div.innerHTML = `
-          <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
-          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
-        `;
-        contenedor.appendChild(div);
+    function actualizarTemas() {
+      const curso = document.getElementById("curso").value;
+      const temaSelect = document.getElementById("tema");
+      temaSelect.innerHTML = "";
+      temasPorCurso[curso].forEach(tema => {
+        const option = document.createElement("option");
+        option.value = tema;
+        option.textContent = tema;
+        temaSelect.appendChild(option);
       });
-    } catch (error) {
-      contenedor.innerHTML = "No se pudieron cargar las preguntas. Intenta más tarde.";
-      console.error(error);
     }
-  }
 
-  function corregirPreguntas() {
-    const inputs = document.querySelectorAll("input[type='text']");
-    inputs.forEach(input => {
-      const userAnswer = input.value.trim();
-      const correctAnswer = input.dataset.correcta;
-      input.parentElement.classList.remove("correct", "incorrect");
-      if (userAnswer === correctAnswer) {
-        input.parentElement.classList.add("correct");
-      } else {
-        input.parentElement.classList.add("incorrect");
-        // Mostrar la respuesta correcta debajo si es incorrecta
-        if (!input.parentElement.querySelector(".respuesta-correcta")) {
-          const respCorrecta = document.createElement("p");
-          respCorrecta.classList.add("respuesta-correcta");
-          respCorrecta.style.color = "#155724";
-          respCorrecta.style.fontWeight = "bold";
-          respCorrecta.textContent = `Respuesta correcta: ${correctAnswer}`;
-          input.parentElement.appendChild(respCorrecta);
-        }
+    async function generarPreguntas() {
+      const curso = document.getElementById("curso").value;
+      const tema = document.getElementById("tema").value;
+      const contenedor = document.getElementById("testContainer");
+      contenedor.innerHTML = "Cargando preguntas...";
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+        if (!response.ok) throw new Error('Error al cargar preguntas');
+        const data = await response.json();
+
+        contenedor.innerHTML = "";
+        data.preguntas.forEach((item, i) => {
+          const div = document.createElement("div");
+          div.classList.add("question");
+          div.innerHTML = `
+            <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
+            <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" />
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        contenedor.innerHTML = "No se pudieron cargar las preguntas. Intenta más tarde.";
+        console.error(error);
       }
-    });
-  }
+    }
 
-  actualizarTemas();
+    function corregirPreguntas() {
+      const inputs = document.querySelectorAll("input[type='text']");
+      inputs.forEach(input => {
+        const userAnswer = input.value.trim();
+        const correctAnswer = input.dataset.correcta;
+        input.parentElement.classList.remove("correct", "incorrect");
+        if (userAnswer === correctAnswer) {
+          input.parentElement.classList.add("correct");
+        } else {
+          input.parentElement.classList.add("incorrect");
+          const feedback = document.createElement("p");
+          feedback.textContent = `Respuesta correcta: ${correctAnswer}`;
+          feedback.style.fontSize = "14px";
+          feedback.style.color = "#555";
+          input.parentElement.appendChild(feedback);
+        }
+      });
+    }
 
-  // Inicializar anuncios AdSense
-  (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+    actualizarTemas();
+  </script>
 </body>
 </html>
+
 
 
 
