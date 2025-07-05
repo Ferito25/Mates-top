@@ -282,6 +282,7 @@
   async function generarPreguntas() {
     const curso = document.getElementById("cursoTest").value;
     const tema = document.getElementById("temaTest").value;
+    console.log("Generando preguntas para:", curso, tema);
     const container = document.getElementById("testContainer");
     container.innerHTML = "<p>Cargando preguntas...</p>";
     try {
