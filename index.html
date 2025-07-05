@@ -177,7 +177,7 @@
   </footer>
 
 <script>
-  // Temas para test y teoría solo 1º primaria según tu lista
+  // Temas para test y teoría solo 1º primaria
   const temas1Primaria = [
     "Números hasta el 9 / Comparación",
     "El número 10, suma y resta hasta 10",
@@ -186,7 +186,7 @@
     "Números hasta 39, decenas y unidades, sumas de dos cifras sin llevar"
   ];
 
-  // Texto de teoría asociados a temas y sus definiciones
+  // Texto de teoría asociados a temas y definiciones
   const definiciones = {
     "Numeros naturales": "Son los números que llamamos de contar. Son con los que se trabajará aquí aunque con muy pocos de ellos.\nLos números del 0-10 son los siguientes: 0,1,2,3,4,5,6,7,8,9,10.",
     "Suma de dos números": "Consiste en fijar un número y añadirle lo que nos indica el otro. En la suma 3+2, pensemos en que tenemos 3 caramelos. El + nos dice que nos dan caramelos, y el 2, que nos dan exactamente 2. Luego si tenía 3 y me dan 2, pues ahora tengo 5.",
@@ -228,7 +228,7 @@
     ]
   };
 
-  // Función para mostrar una sección
+  // Mostrar una sección y ocultar las demás
   function mostrar(seccion) {
     document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
     document.getElementById(seccion).classList.remove('hidden');
@@ -275,81 +275,68 @@
     cont.textContent = texto.trim();
   }
 
-  // Para el generador de tests: backend y funciones base (ajustar a tu backend)
-const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
+  // URL backend preguntas
+  const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
 
-const temasPorCurso = {
-  "1primaria": ["números", "sumas y restas", "comparación"],
-  "2primaria": [],
-  "3primaria": []
-};
-
-async function generarPreguntas() {
-  const curso = document.getElementById("cursoTest").value;
-  const tema = document.getElementById("temaTest").value;
-  const container = document.getElementById("testContainer");
-  container.innerHTML = "<p>Cargando preguntas...</p>";
-  try {
-    // Ruta corregida a /preguntas y parámetros curso y tema
-    const resp = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-    if (!resp.ok) throw new Error("Error al obtener preguntas");
-    const preguntas = await resp.json();
-    if (!preguntas.length) {
-      container.innerHTML = "<p>No hay preguntas para este tema.</p>";
-      return;
+  // Generar preguntas para test
+  async function generarPreguntas() {
+    const curso = document.getElementById("cursoTest").value;
+    const tema = document.getElementById("temaTest").value;
+    const container = document.getElementById("testContainer");
+    container.innerHTML = "<p>Cargando preguntas...</p>";
+    try {
+      const resp = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+      if (!resp.ok) throw new Error("Error al obtener preguntas");
+      const preguntas = await resp.json();
+      if (!preguntas.length) {
+        container.innerHTML = "<p>No hay preguntas para este tema.</p>";
+        return;
+      }
+      let html = "";
+      preguntas.forEach((p, i) => {
+        html += `<div class="question">
+          <div><strong>Pregunta ${i + 1}:</strong> ${p.pregunta}</div>
+          <input type="text" id="resp${i}" data-correcta="${p.respuesta}" aria-label="Respuesta pregunta ${i + 1}" />
+          <div class="respuesta-correcta hidden" id="correcta${i}"></div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    } catch (e) {
+      container.innerHTML = "<p>Error al cargar preguntas.</p>";
     }
-    let html = "";
-    preguntas.forEach((p, i) => {
-      html += `<div class="question">
-        <div><strong>Pregunta ${i + 1}:</strong> ${p.pregunta}</div>
-        <input type="text" id="resp${i}" data-correcta="${p.respuesta}" />
-        <div class="respuesta-correcta hidden" id="correcta${i}"></div>
-      </div>`;
-    });
-    container.innerHTML = html;
-  } catch (e) {
-    container.innerHTML = "<p>Error al cargar preguntas.</p>";
   }
-}
 
-async function corregirPreguntas() {
-  const container = document.getElementById("testContainer");
-  if (!container.children.length) return alert("Genera el test primero.");
-  const inputs = container.querySelectorAll("input");
-  inputs.forEach((input, i) => {
-    const correcto = input.dataset.correcta.toLowerCase().trim();
-    const dado = input.value.toLowerCase().trim();
-    const divRespuesta = document.getElementById(`correcta${i}`);
+  // Corregir respuestas de test
+  function corregirPreguntas() {
+    const container = document.getElementById("testContainer");
+    if (!container.children.length) return alert("Genera el test primero.");
+    const inputs = container.querySelectorAll("input");
+    inputs.forEach((input, i) => {
+      const correcto = input.dataset.correcta.toLowerCase().trim();
+      const dado = input.value.toLowerCase().trim();
+      const divRespuesta = document.getElementById(`correcta${i}`);
 
-    if (dado === correcto) {
-      input.parentElement.classList.add("correct");
-      input.parentElement.classList.remove("incorrect");
-      divRespuesta.classList.add("hidden");
-      divRespuesta.textContent = "";
-    } else {
-      input.parentElement.classList.add("incorrect");
-      input.parentElement.classList.remove("correct");
-      divRespuesta.textContent = "Respuesta correcta: " + input.dataset.correcta;
-      divRespuesta.classList.remove("hidden");
-    }
-  });
-}
+      if (dado === correcto) {
+        input.parentElement.classList.add("correct");
+        input.parentElement.classList.remove("incorrect");
+        divRespuesta.classList.add("hidden");
+        divRespuesta.textContent = "";
+      } else {
+        input.parentElement.classList.add("incorrect");
+        input.parentElement.classList.remove("correct");
+        divRespuesta.textContent = "Respuesta correcta: " + input.dataset.correcta;
+        divRespuesta.classList.remove("hidden");
+      }
+    });
+  }
 
-// Actualiza el select de temas según el curso seleccionado
-function actualizarTemasTest() {
-  const curso = document.getElementById("cursoTest").value;
-  const temaSelect = document.getElementById("temaTest");
-  temaSelect.innerHTML = "";
-  temasPorCurso[curso].forEach(tema => {
-    const option = document.createElement("option");
-    option.value = tema;
-    option.textContent = tema.charAt(0).toUpperCase() + tema.slice(1);
-    temaSelect.appendChild(option);
-  });
-}
+  // Inicializar select temas al cargar la página
+  actualizarTemasTest();
+  actualizarTemasTeoria();
+</script>
+</body>
+</html>
 
-// Inicializar selects al cargar
-actualizarTemasTest();
 
 
 
