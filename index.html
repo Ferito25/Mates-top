@@ -276,75 +276,81 @@
   }
 
   // Para el generador de tests: backend y funciones base (ajustar a tu backend)
-  const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
+const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
 
-  async function generarPreguntas() {
-    const curso = document.getElementById("cursoTest").value;
-    const tema = document.getElementById("temaTest").value;
-    const container = document.getElementById("testContainer");
-    container.innerHTML = "<p>Cargando preguntas...</p>";
-    try {
-      const resp = await fetch(`${BACKEND_URL}/generar-preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-      if (!resp.ok) throw new Error("Error al obtener preguntas");
-      const preguntas = await resp.json();
-      if (!preguntas.length) {
-        container.innerHTML = "<p>No hay preguntas para este tema.</p>";
-        return;
-      }
-      let html = "";
-      preguntas.forEach((p, i) => {
-        html += `<div class="question">
-          <div><strong>Pregunta ${i + 1}:</strong> ${p.pregunta}</div>
-          <input type="text" id="resp${i}" />
-          <div class="respuesta-correcta hidden" id="correcta${i}"></div>
-        </div>`;
-      });
-      container.innerHTML = html;
-    } catch (e) {
-      container.innerHTML = "<p>Error al cargar preguntas.</p>";
+const temasPorCurso = {
+  "1primaria": ["números", "sumas y restas", "comparación"],
+  "2primaria": [],
+  "3primaria": []
+};
+
+async function generarPreguntas() {
+  const curso = document.getElementById("cursoTest").value;
+  const tema = document.getElementById("temaTest").value;
+  const container = document.getElementById("testContainer");
+  container.innerHTML = "<p>Cargando preguntas...</p>";
+  try {
+    // Ruta corregida a /preguntas y parámetros curso y tema
+    const resp = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
+    if (!resp.ok) throw new Error("Error al obtener preguntas");
+    const preguntas = await resp.json();
+    if (!preguntas.length) {
+      container.innerHTML = "<p>No hay preguntas para este tema.</p>";
+      return;
     }
+    let html = "";
+    preguntas.forEach((p, i) => {
+      html += `<div class="question">
+        <div><strong>Pregunta ${i + 1}:</strong> ${p.pregunta}</div>
+        <input type="text" id="resp${i}" data-correcta="${p.respuesta}" />
+        <div class="respuesta-correcta hidden" id="correcta${i}"></div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = "<p>Error al cargar preguntas.</p>";
   }
+}
 
-  async function corregirPreguntas() {
-    const container = document.getElementById("testContainer");
-    if (!container.children.length) return alert("Genera el test primero.");
-    const inputs = container.querySelectorAll("input");
-    const curso = document.getElementById("cursoTest").value;
-    const tema = document.getElementById("temaTest").value;
-    try {
-      const resp = await fetch(`${BACKEND_URL}/corregir-preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-      if (!resp.ok) throw new Error("Error al obtener respuestas");
-      const respuestas = await resp.json();
+async function corregirPreguntas() {
+  const container = document.getElementById("testContainer");
+  if (!container.children.length) return alert("Genera el test primero.");
+  const inputs = container.querySelectorAll("input");
+  inputs.forEach((input, i) => {
+    const correcto = input.dataset.correcta.toLowerCase().trim();
+    const dado = input.value.toLowerCase().trim();
+    const divRespuesta = document.getElementById(`correcta${i}`);
 
-      inputs.forEach((input, i) => {
-        const correcto = respuestas[i].respuestaCorrecta.toLowerCase().trim();
-        const dado = input.value.toLowerCase().trim();
-        const divRespuesta = document.getElementById(`correcta${i}`);
-
-        if (dado === correcto) {
-          input.parentElement.classList.add("correct");
-          input.parentElement.classList.remove("incorrect");
-          divRespuesta.classList.add("hidden");
-          divRespuesta.textContent = "";
-        } else {
-          input.parentElement.classList.add("incorrect");
-          input.parentElement.classList.remove("correct");
-          divRespuesta.textContent = "Respuesta correcta: " + respuestas[i].respuestaCorrecta;
-          divRespuesta.classList.remove("hidden");
-        }
-      });
-    } catch (e) {
-      alert("Error al corregir el test.");
+    if (dado === correcto) {
+      input.parentElement.classList.add("correct");
+      input.parentElement.classList.remove("incorrect");
+      divRespuesta.classList.add("hidden");
+      divRespuesta.textContent = "";
+    } else {
+      input.parentElement.classList.add("incorrect");
+      input.parentElement.classList.remove("correct");
+      divRespuesta.textContent = "Respuesta correcta: " + input.dataset.correcta;
+      divRespuesta.classList.remove("hidden");
     }
-  }
+  });
+}
 
-  // Inicializar selects al cargar
-  actualizarTemasTest();
-  actualizarTemasTeoria();
-</script>
+// Actualiza el select de temas según el curso seleccionado
+function actualizarTemasTest() {
+  const curso = document.getElementById("cursoTest").value;
+  const temaSelect = document.getElementById("temaTest");
+  temaSelect.innerHTML = "";
+  temasPorCurso[curso].forEach(tema => {
+    const option = document.createElement("option");
+    option.value = tema;
+    option.textContent = tema.charAt(0).toUpperCase() + tema.slice(1);
+    temaSelect.appendChild(option);
+  });
+}
 
-</body>
-</html>
+// Inicializar selects al cargar
+actualizarTemasTest();
+
 
 
 
