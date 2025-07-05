@@ -2,307 +2,167 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <title>Math Kids - Tests Divertidos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Academia Matemática</title>
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1079922671750751"
+     crossorigin="anonymous"></script>
   <style>
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f8ff;
+      padding: 20px;
+      background: #f7f7f7;
     }
-    header {
-      background-color: #4CAF50;
-      color: white;
-      padding: 1rem;
+
+    h1, h2 {
       text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      color: #333;
     }
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      background-color: #388E3C;
-      padding: 0.5rem 0;
-    }
-    nav button {
-      background: white;
-      color: #388E3C;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    nav button:hover {
-      background-color: #c8e6c9;
-    }
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 2rem;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-top: 1rem;
-    }
-    section {
-      display: none;
-    }
-    section.active {
+
+    select, button {
       display: block;
-    }
-    select, button, input {
-      margin-top: 10px;
+      margin: 10px auto;
       padding: 10px;
       font-size: 16px;
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid #ccc;
     }
-    .question {
-      margin: 1rem 0;
-      background: #e3f2fd;
-      padding: 1rem;
-      border-radius: 12px;
+
+    .pregunta {
+      background: white;
+      margin: 15px auto;
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 600px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .correct { background-color: #d4edda; }
-    .incorrect { background-color: #f8d7da; }
-    .language-selector {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
+
+    .respuesta-correcta {
+      color: green;
+      font-weight: bold;
+    }
+
+    .respuesta-incorrecta {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1 data-i18n="title">Academia Matemática</h1>
-    <div class="language-selector">
-      <select id="language" onchange="changeLanguage()">
-        <option value="es">Español</option>
-        <option value="en">English</option>
-        <option value="fr">Français</option>
-        <option value="pt">Português</option>
-      </select>
-    </div>
-  </header>
 
-  <nav>
-    <button onclick="showSection('home')" data-i18n="nav_home">Inicio</button>
-    <button onclick="showSection('tests')" data-i18n="nav_tests">Tests</button>
-    <button onclick="showSection('theory')" data-i18n="nav_theory">Teoría</button>
-  </nav>
+  <h1>Math Kids - Test Matemáticos</h1>
 
-  <main>
-    <section id="home" class="active">
-      <h2 data-i18n="welcome">¡Bienvenido a la Academia Matemática!</h2>
-      <p data-i18n="intro">Aquí puedes practicar con tests y consultar teoría de forma interactiva. ¡Vamos a aprender juntos!</p>
-    </section>
+  <select id="cursoSelect">
+    <option value="">Selecciona un curso</option>
+    <option value="1primaria">1º Primaria</option>
+  </select>
 
-    <section id="tests">
-      <h2 data-i18n="tests_title">Generador de Tests</h2>
-      <label for="curso" data-i18n="label_course">Selecciona tu curso:</label>
-      <select id="curso" onchange="actualizarTemas()">
-        <option value="1primaria">1º Primaria</option>
-        <option value="2primaria">2º Primaria</option>
-        <option value="3primaria">3º Primaria</option>
-      </select>
-      <label for="tema" data-i18n="label_topic">Selecciona un tema:</label>
-      <select id="tema"></select>
-      <button onclick="generarPreguntas()" data-i18n="btn_generate">Generar Test</button>
-      <button onclick="corregirPreguntas()" data-i18n="btn_check">Corregir</button>
-      <div id="testContainer"></div>
-    </section>
+  <select id="temaSelect">
+    <option value="">Selecciona un tema</option>
+  </select>
 
-    <section id="theory">
-      <h2 data-i18n="theory_title">Teoría Interactiva</h2>
-      <p data-i18n="theory_instruction">Selecciona un curso y escribe una duda sobre un tema. Nuestro bot te dará la teoría básica y resolverá tus preguntas.</p>
-      <select id="cursoTeoria">
-        <option value="1primaria">1º Primaria</option>
-        <option value="2primaria">2º Primaria</option>
-        <option value="3primaria">3º Primaria</option>
-      </select>
-      <input type="text" id="preguntaTeoria" placeholder="¿Qué es una fracción?">
-      <button onclick="responderTeoria()" data-i18n="btn_ask">Consultar</button>
-      <div id="respuestaTeoria"></div>
-    </section>
-  </main>
+  <select id="modoSelect">
+    <option value="mixto">Test mixto (todo el tema)</option>
+  </select>
+
+  <button onclick="cargarTest()">¡Empezar test!</button>
+
+  <div id="testContainer"></div>
 
   <script>
     const temasPorCurso = {
-      "1primaria": ["Números hasta el 100", "Sumas y restas"],
-      "2primaria": ["Números hasta el 1000", "Multiplicaciones básicas"],
-      "3primaria": ["Fracciones simples", "Tablas de multiplicar"]
-    };
-
-    const respuestasTeoria = {
-      "fracción": {
-        "1primaria": "Una fracción es una parte de un todo.",
-        "2primaria": "Una fracción representa partes iguales de un entero.",
-        "3primaria": "Una fracción como 3/4 significa tres partes de cuatro iguales."
-      },
-      "suma": {
-        "1primaria": "Sumar es juntar cantidades.",
-        "2primaria": "La suma se representa con el signo '+'.",
-        "3primaria": "La suma es una operación que une dos o más números."
+      "1primaria": {
+        "Números hasta el 10": ["Escribir número en cifras", "Decenas y unidades"],
+        "Sumas hasta 10": ["Sumas simples"],
+        "Restas hasta 10": ["Restas simples"],
+        "Comparación de números": ["Comparar con <, >"],
+        "Números hasta el 20": ["Escribir número en cifras", "Decenas y unidades"],
+        "Sumas hasta 20": ["Sumas fáciles", "Sumas con llevar"],
+        "Restas hasta 20": ["Restas fáciles", "Restas con llevar"]
       }
     };
 
-    function showSection(id) {
-      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+    document.getElementById("cursoSelect").addEventListener("change", function () {
+      const curso = this.value;
+      const temaSelect = document.getElementById("temaSelect");
+      const modoSelect = document.getElementById("modoSelect");
 
-    function actualizarTemas() {
-      const curso = document.getElementById("curso").value;
-      const temaSelect = document.getElementById("tema");
-      temaSelect.innerHTML = "";
-      temasPorCurso[curso].forEach(tema => {
-        const option = document.createElement("option");
-        option.value = tema;
-        option.textContent = tema;
-        temaSelect.appendChild(option);
-      });
-    }
+      temaSelect.innerHTML = '<option value="">Selecciona un tema</option>';
+      modoSelect.innerHTML = '<option value="mixto">Test mixto (todo el tema)</option>';
 
-    async function generarPreguntas() {
-      const curso = document.getElementById("curso").value;
-      const tema = document.getElementById("tema").value;
-      const contenedor = document.getElementById("testContainer");
-      contenedor.innerHTML = "Cargando...";
-
-      try {
-        const res = await fetch(`https://subsequent-faceted-marlin.glitch.me/tests?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-        const data = await res.json();
-
-        contenedor.innerHTML = "";
-        data.preguntas.forEach((item, i) => {
-          const div = document.createElement("div");
-          div.classList.add("question");
-          div.innerHTML = `
-            <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
-            <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta">
-          `;
-          contenedor.appendChild(div);
+      if (curso && temasPorCurso[curso]) {
+        Object.keys(temasPorCurso[curso]).forEach(tema => {
+          const opt = document.createElement("option");
+          opt.value = tema;
+          opt.textContent = tema;
+          temaSelect.appendChild(opt);
         });
-      } catch (err) {
-        contenedor.innerHTML = "Error al cargar preguntas.";
       }
-    }
+    });
 
-    function corregirPreguntas() {
-      const inputs = document.querySelectorAll("input[type='text']");
-      inputs.forEach(input => {
-        const respuesta = input.value.trim();
-        const correcta = input.dataset.correcta;
-        input.parentElement.classList.remove("correct", "incorrect");
-        if (respuesta === correcta) {
-          input.parentElement.classList.add("correct");
-        } else {
-          input.parentElement.classList.add("incorrect");
-        }
+    document.getElementById("temaSelect").addEventListener("change", function () {
+      const curso = document.getElementById("cursoSelect").value;
+      const tema = this.value;
+      const modoSelect = document.getElementById("modoSelect");
+
+      modoSelect.innerHTML = '<option value="mixto">Test mixto (todo el tema)</option>';
+
+      if (curso && tema && temasPorCurso[curso]?.[tema]) {
+        temasPorCurso[curso][tema].forEach(subtema => {
+          const opt = document.createElement("option");
+          opt.value = subtema;
+          opt.textContent = subtema;
+          modoSelect.appendChild(opt);
+        });
+      }
+    });
+
+    async function cargarTest() {
+      const curso = document.getElementById("cursoSelect").value;
+      const tema = document.getElementById("temaSelect").value;
+      const modo = document.getElementById("modoSelect").value;
+
+      if (!curso || !tema || !modo) {
+        alert("Selecciona curso, tema y modo");
+        return;
+      }
+
+      const url = `https://tu-backend.glitch.me/tests?curso=${curso}&tema=${tema}&modo=${modo}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const container = document.getElementById("testContainer");
+      container.innerHTML = "";
+
+      data.preguntas.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "pregunta";
+        div.innerHTML = `
+          <strong>Pregunta ${i + 1}:</strong> ${p.pregunta}<br><br>
+          <input type="text" id="resp${i}" placeholder="Tu respuesta">
+          <button onclick="verificar(${i}, '${p.respuesta}')">Comprobar</button>
+          <p id="resultado${i}"></p>
+        `;
+        container.appendChild(div);
       });
     }
 
-    function responderTeoria() {
-      const curso = document.getElementById("cursoTeoria").value;
-      const pregunta = document.getElementById("preguntaTeoria").value.toLowerCase();
-      const respuestaDiv = document.getElementById("respuestaTeoria");
+    function verificar(i, correcta) {
+      const resp = document.getElementById("resp" + i).value.trim();
+      const resultado = document.getElementById("resultado" + i);
 
-      for (let clave in respuestasTeoria) {
-        if (pregunta.includes(clave)) {
-          respuestaDiv.textContent = respuestasTeoria[clave][curso];
-          return;
-        }
+      if (resp === correcta) {
+        resultado.textContent = "¡Correcto!";
+        resultado.className = "respuesta-correcta";
+      } else {
+        resultado.textContent = `Incorrecto. La respuesta era: ${correcta}`;
+        resultado.className = "respuesta-incorrecta";
       }
-      respuestaDiv.textContent = "No tengo respuesta para esa pregunta todavía.";
     }
-
-    const traducciones = {
-      es: {
-        title: "Academia Matemática",
-        nav_home: "Inicio",
-        nav_tests: "Tests",
-        nav_theory: "Teoría",
-        welcome: "¡Bienvenido a la Academia Matemática!",
-        intro: "Aquí puedes practicar con tests y consultar teoría de forma interactiva. ¡Vamos a aprender juntos!",
-        tests_title: "Generador de Tests",
-        label_course: "Selecciona tu curso:",
-        label_topic: "Selecciona un tema:",
-        btn_generate: "Generar Test",
-        btn_check: "Corregir",
-        theory_title: "Teoría Interactiva",
-        theory_instruction: "Selecciona un curso y escribe una duda sobre un tema. Nuestro bot te dará la teoría básica y resolverá tus preguntas.",
-        btn_ask: "Consultar"
-      },
-      en: {
-        title: "Math Academy",
-        nav_home: "Home",
-        nav_tests: "Tests",
-        nav_theory: "Theory",
-        welcome: "Welcome to the Math Academy!",
-        intro: "Here you can practice with tests and consult theory interactively. Let's learn together!",
-        tests_title: "Test Generator",
-        label_course: "Choose your grade:",
-        label_topic: "Choose a topic:",
-        btn_generate: "Generate Test",
-        btn_check: "Check",
-        theory_title: "Interactive Theory",
-        theory_instruction: "Select a grade and type a question. Our bot will provide basic theory and help you.",
-        btn_ask: "Ask"
-      },
-      fr: {
-        title: "Académie de Mathématiques",
-        nav_home: "Accueil",
-        nav_tests: "Tests",
-        nav_theory: "Théorie",
-        welcome: "Bienvenue à l'Académie de Mathématiques !",
-        intro: "Ici, vous pouvez pratiquer avec des tests et consulter la théorie de manière interactive. Apprenons ensemble !",
-        tests_title: "Générateur de Tests",
-        label_course: "Choisissez votre niveau :",
-        label_topic: "Choisissez un thème :",
-        btn_generate: "Générer un test",
-        btn_check: "Corriger",
-        theory_title: "Théorie Interactive",
-        theory_instruction: "Choisissez un niveau et tapez une question. Notre bot vous expliquera la théorie.",
-        btn_ask: "Consulter"
-      },
-      pt: {
-        title: "Academia de Matemática",
-        nav_home: "Início",
-        nav_tests: "Testes",
-        nav_theory: "Teoria",
-        welcome: "Bem-vindo à Academia de Matemática!",
-        intro: "Aqui você pode praticar com testes e consultar a teoria interativamente. Vamos aprender juntos!",
-        tests_title: "Gerador de Testes",
-        label_course: "Selecione sua série:",
-        label_topic: "Escolha um tópico:",
-        btn_generate: "Gerar Teste",
-        btn_check: "Corrigir",
-        theory_title: "Teoria Interativa",
-        theory_instruction: "Escolha uma série e digite uma dúvida. Nosso bot explicará a teoria básica.",
-        btn_ask: "Consultar"
-      }
-    };
-
-    function changeLanguage() {
-      const lang = document.getElementById("language").value;
-      const elements = document.querySelectorAll("[data-i18n]");
-      elements.forEach(el => {
-        const key = el.getAttribute("data-i18n");
-        if (traducciones[lang][key]) {
-          el.textContent = traducciones[lang][key];
-        }
-      });
-    }
-
-    actualizarTemas();
   </script>
+
 </body>
 </html>
+
 
 
 
