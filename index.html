@@ -1,113 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Test de Matemáticas 1º Primaria</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  select, button, input { padding: 8px; margin: 5px 0; font-size: 16px; }
-  .pregunta { margin: 10px 0; }
-  .correcto { color: green; }
-  .error { color: red; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matemáticas para Primaria</title>
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fb;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      background: #34495e;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    section {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .question {
+      background: #ecf0f1;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .correct {
+      background: #d4edda;
+    }
+    .incorrect {
+      background: #f8d7da;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+    }
+    select, button, input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .hidden { display: none; }
+    .respuesta-correcta {
+      font-size: 14px;
+      color: #555;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Matemáticas para Primaria</h1>
+    <p>Aprende y practica con tests interactivos</p>
+  </header>
 
-<h1>Test de Matemáticas 1º Primaria</h1>
+  <nav>
+    <a onclick="mostrar('inicio')">Inicio</a>
+    <a onclick="mostrar('tests')">Generador de Tests</a>
+    <a onclick="mostrar('teoria')">Teoría</a>
+    <a onclick="mostrar('nosotros')">Sobre nosotros</a>
+  </nav>
 
-<label for="curso">Curso:</label><br />
-<select id="curso">
-  <option value="1primaria" selected>1º Primaria</option>
-</select><br/>
+  <section id="inicio">
+    <h2>Bienvenido/a</h2>
+    <p>En esta plataforma puedes practicar matemáticas de primaria mediante tests interactivos y recursos didácticos.</p>
+    <img src="https://undraw.co/api/illustrations/math.png" alt="Ilustración" style="max-width:100%; border-radius:12px; margin-top: 20px;">
+  </section>
 
-<label for="tema">Tema:</label><br />
-<select id="tema">
-  <option value="Números hasta el 100">Números hasta el 100</option>
-  <option value="Sumas y restas">Sumas y restas</option>
-</select><br/>
+  <section id="tests" class="hidden">
+    <h2>Generador de Tests</h2>
+    <label for="curso">Selecciona el curso:</label>
+    <select id="curso" onchange="actualizarTemas()">
+      <option value="1primaria" selected>1º Primaria</option>
+      <option value="2primaria" disabled>2º Primaria (no disponible)</option>
+      <option value="3primaria" disabled>3º Primaria (no disponible)</option>
+    </select>
 
-<label for="modo">Tipo de preguntas:</label><br />
-<select id="modo">
-  <option value="mix">Mixto</option>
-  <option value="solo">Solo sobre tema seleccionado</option>
-</select><br/>
+    <label for="tema">Selecciona el tema:</label>
+    <select id="tema"></select>
 
-<button id="btnGenerar">Generar Test</button>
+    <button onclick="generarPreguntas()">Generar Test</button>
+    <button onclick="corregirPreguntas()">Corregir Test</button>
+    <div id="testContainer"></div>
+  </section>
 
-<div id="testArea"></div>
+  <section id="teoria" class="hidden">
+    <h2>Conceptos Básicos</h2>
+    <div id="contenidoTeoria">
+      <p>Selecciona un tema para ver la teoría relacionada.</p>
+    </div>
+  </section>
 
-<button id="btnCorregir" style="display:none;">Corregir Test</button>
+  <section id="nosotros" class="hidden">
+    <h2>Sobre Nosotros</h2>
+    <p>Somos un equipo educativo que crea herramientas interactivas gratuitas para ayudar a niños y niñas a aprender matemáticas de forma divertida y efectiva.</p>
+    <p>Si tienes dudas o sugerencias, contáctanos en <a href="mailto:contacto@tusitio.com">contacto@tusitio.com</a>.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Matemáticas Primaria. Todos los derechos reservados.</p>
+  </footer>
 
 <script>
-  const API_URL = "https://subsequent-faceted-marlin.glitch.me"; // Cambia por tu URL real
+  const BACKEND_URL = 'https://subsequent-faceted-marlin.glitch.me';
+  
+  // Temas solo para 1º primaria según el backend
+  const temasPorCurso = {
+    "1primaria": ["números", "sumas y restas", "comparación"]
+  };
 
-  const btnGenerar = document.getElementById("btnGenerar");
-  const btnCorregir = document.getElementById("btnCorregir");
-  const testArea = document.getElementById("testArea");
-  const cursoSelect = document.getElementById("curso");
-  const temaSelect = document.getElementById("tema");
-  const modoSelect = document.getElementById("modo");
+  // Teoría relacionada con cada tema (puedes repetir contenido si quieres)
+  const teoriaPorTema = {
+    "números": `
+      <p><strong>Fracciones:</strong> representan partes de un todo. Por ejemplo, 1/2 es la mitad. Se pueden sumar y restar, y a veces se convierten en decimales.</p>
+      <p><strong>Números y sus descomposiciones:</strong> Aprende a leer y escribir números hasta el 10, y a identificar decenas y unidades.</p>
+    `,
+    "sumas y restas": `
+      <p><strong>Sumas y Restas:</strong> operaciones básicas para reunir o quitar cantidades.</p>
+      <p><strong>Sumas sencillas:</strong> práctica sumando números pequeños y un poco más grandes hasta 50.</p>
+    `,
+    "comparación": `
+      <p><strong>Comparación de números:</strong> aprender a usar los signos >, <, = para comparar cantidades.</p>
+    `
+  };
 
-  let preguntasActuales = [];
+  function mostrar(seccion) {
+    document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+    document.getElementById(seccion).classList.remove('hidden');
+  }
 
-  btnGenerar.onclick = async () => {
-    const curso = cursoSelect.value;
-    const tema = temaSelect.value;
-    // modo lo usaremos más adelante si quieres
-    testArea.innerHTML = "Generando preguntas...";
+  function actualizarTemas() {
+    const curso = document.getElementById("curso").value;
+    const temaSelect = document.getElementById("tema");
+    temaSelect.innerHTML = "";
+
+    if (temasPorCurso[curso]) {
+      temasPorCurso[curso].forEach(tema => {
+        const option = document.createElement("option");
+        option.value = tema;
+        option.textContent = tema.charAt(0).toUpperCase() + tema.slice(1);
+        temaSelect.appendChild(option);
+      });
+    }
+
+    actualizarTeoria(); // Mostrar la teoría al cambiar tema
+  }
+
+  function actualizarTeoria() {
+    const tema = document.getElementById("tema").value;
+    const contTeoria = document.getElementById("contenidoTeoria");
+    contTeoria.innerHTML = teoriaPorTema[tema] || "<p>No hay teoría disponible para este tema.</p>";
+  }
+
+  async function generarPreguntas() {
+    const curso = document.getElementById("curso").value;
+    const tema = document.getElementById("tema").value;
+    const contenedor = document.getElementById("testContainer");
+    contenedor.innerHTML = "Cargando preguntas...";
 
     try {
-      const res = await fetch(`${API_URL}?curso=${curso}&tema=${tema}`);
-      if (!res.ok) throw new Error("Error en la petición");
-      const data = await res.json();
+      // El backend devuelve un array de preguntas, no dentro de un objeto "preguntas"
+      const response = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}&subtipo=mixto`);
+      if (!response.ok) throw new Error('Error al cargar preguntas');
+      const data = await response.json();
+      contenedor.innerHTML = "";
 
-      preguntasActuales = data.preguntas || [];
-
-      if (preguntasActuales.length === 0) {
-        testArea.innerHTML = "No se generaron preguntas.";
-        btnCorregir.style.display = "none";
+      if (!Array.isArray(data) || data.length === 0) {
+        contenedor.innerHTML = "<p>No se generaron preguntas para este tema.</p>";
         return;
       }
 
-      // Mostrar preguntas con input
-      let html = "";
-      preguntasActuales.forEach((p, i) => {
-        html += `
-          <div class="pregunta">
-            <b>Pregunta ${i+1}:</b> ${p.pregunta} <br/>
-            <input type="text" id="respuesta-${i}" />
-            <span id="feedback-${i}"></span>
-          </div>
+      data.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
+        div.innerHTML = `
+          <p><strong>Pregunta ${i + 1}:</strong> ${item.pregunta}</p>
+          <input type="text" id="respuesta_${i}" data-correcta="${item.respuesta}" placeholder="Tu respuesta" autocomplete="off" />
+          <div class="respuesta-correcta" id="feedback_${i}"></div>
         `;
+        contenedor.appendChild(div);
       });
-      testArea.innerHTML = html;
-      btnCorregir.style.display = "inline-block";
-    } catch (e) {
-      testArea.innerHTML = "Error al generar el test.";
-      btnCorregir.style.display = "none";
-      console.error(e);
+    } catch (error) {
+      contenedor.innerHTML = "<p>No se pudieron cargar las preguntas. Intenta más tarde.</p>";
+      console.error(error);
     }
-  };
+  }
 
-  btnCorregir.onclick = () => {
-    preguntasActuales.forEach((p, i) => {
-      const userResp = document.getElementById(`respuesta-${i}`).value.trim();
-      const feedback = document.getElementById(`feedback-${i}`);
+  function corregirPreguntas() {
+    const inputs = document.querySelectorAll("#testContainer input[type='text']");
+    inputs.forEach(input => {
+      const userAnswer = input.value.trim().toLowerCase();
+      const correctAnswer = input.dataset.correcta.trim().toLowerCase();
+      const feedback = document.getElementById(`feedback_${input.id.split('_')[1]}`);
 
-      if (userResp === p.respuesta) {
-        feedback.textContent = " ¡Correcto!";
-        feedback.className = "correcto";
+      input.parentElement.classList.remove("correct", "incorrect");
+      feedback.textContent = "";
+
+      if (userAnswer === correctAnswer) {
+        input.parentElement.classList.add("correct");
+        feedback.textContent = "¡Correcto!";
+        feedback.style.color = "#155724";
       } else {
-        feedback.textContent = ` Incorrecto. La respuesta correcta es ${p.respuesta}`;
-        feedback.className = "error";
+        input.parentElement.classList.add("incorrect");
+        feedback.textContent = `Respuesta correcta: ${input.dataset.correcta}`;
+        feedback.style.color = "#721c24";
       }
     });
-  };
-</script>
+  }
 
+  // Eventos para actualizar teoría al cambiar tema
+  document.getElementById("tema").addEventListener("change", actualizarTeoria);
+
+  // Inicializamos opciones y vista
+  actualizarTemas();
+  mostrar('inicio');
+</script>
 </body>
 </html>
+
 
 
 
