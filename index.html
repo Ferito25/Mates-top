@@ -1,167 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Math Kids - Tests Divertidos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1079922671750751"
-     crossorigin="anonymous"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f7f7f7;
-    }
-
-    h1, h2 {
-      text-align: center;
-      color: #333;
-    }
-
-    select, button {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .pregunta {
-      background: white;
-      margin: 15px auto;
-      padding: 15px;
-      border-radius: 8px;
-      max-width: 600px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .respuesta-correcta {
-      color: green;
-      font-weight: bold;
-    }
-
-    .respuesta-incorrecta {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Test de Matemáticas 1º Primaria</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  select, button, input { padding: 8px; margin: 5px 0; font-size: 16px; }
+  .pregunta { margin: 10px 0; }
+  .correcto { color: green; }
+  .error { color: red; }
+</style>
 </head>
 <body>
 
-  <h1>Math Kids - Test Matemáticos</h1>
+<h1>Test de Matemáticas 1º Primaria</h1>
 
-  <select id="cursoSelect">
-    <option value="">Selecciona un curso</option>
-    <option value="1primaria">1º Primaria</option>
-  </select>
+<label for="curso">Curso:</label><br />
+<select id="curso">
+  <option value="1primaria" selected>1º Primaria</option>
+</select><br/>
 
-  <select id="temaSelect">
-    <option value="">Selecciona un tema</option>
-  </select>
+<label for="tema">Tema:</label><br />
+<select id="tema">
+  <option value="Números hasta el 100">Números hasta el 100</option>
+  <option value="Sumas y restas">Sumas y restas</option>
+</select><br/>
 
-  <select id="modoSelect">
-    <option value="mixto">Test mixto (todo el tema)</option>
-  </select>
+<label for="modo">Tipo de preguntas:</label><br />
+<select id="modo">
+  <option value="mix">Mixto</option>
+  <option value="solo">Solo sobre tema seleccionado</option>
+</select><br/>
 
-  <button onclick="cargarTest()">¡Empezar test!</button>
+<button id="btnGenerar">Generar Test</button>
 
-  <div id="testContainer"></div>
+<div id="testArea"></div>
 
-  <script>
-    const temasPorCurso = {
-      "1primaria": {
-        "Números hasta el 10": ["Escribir número en cifras", "Decenas y unidades"],
-        "Sumas hasta 10": ["Sumas simples"],
-        "Restas hasta 10": ["Restas simples"],
-        "Comparación de números": ["Comparar con <, >"],
-        "Números hasta el 20": ["Escribir número en cifras", "Decenas y unidades"],
-        "Sumas hasta 20": ["Sumas fáciles", "Sumas con llevar"],
-        "Restas hasta 20": ["Restas fáciles", "Restas con llevar"]
-      }
-    };
+<button id="btnCorregir" style="display:none;">Corregir Test</button>
 
-    document.getElementById("cursoSelect").addEventListener("change", function () {
-      const curso = this.value;
-      const temaSelect = document.getElementById("temaSelect");
-      const modoSelect = document.getElementById("modoSelect");
+<script>
+  const API_URL = "https://tu-backend.glitch.me/tests"; // Cambia por tu URL real
 
-      temaSelect.innerHTML = '<option value="">Selecciona un tema</option>';
-      modoSelect.innerHTML = '<option value="mixto">Test mixto (todo el tema)</option>';
+  const btnGenerar = document.getElementById("btnGenerar");
+  const btnCorregir = document.getElementById("btnCorregir");
+  const testArea = document.getElementById("testArea");
+  const cursoSelect = document.getElementById("curso");
+  const temaSelect = document.getElementById("tema");
+  const modoSelect = document.getElementById("modo");
 
-      if (curso && temasPorCurso[curso]) {
-        Object.keys(temasPorCurso[curso]).forEach(tema => {
-          const opt = document.createElement("option");
-          opt.value = tema;
-          opt.textContent = tema;
-          temaSelect.appendChild(opt);
-        });
-      }
-    });
+  let preguntasActuales = [];
 
-    document.getElementById("temaSelect").addEventListener("change", function () {
-      const curso = document.getElementById("cursoSelect").value;
-      const tema = this.value;
-      const modoSelect = document.getElementById("modoSelect");
+  btnGenerar.onclick = async () => {
+    const curso = cursoSelect.value;
+    const tema = temaSelect.value;
+    // modo lo usaremos más adelante si quieres
+    testArea.innerHTML = "Generando preguntas...";
 
-      modoSelect.innerHTML = '<option value="mixto">Test mixto (todo el tema)</option>';
+    try {
+      const res = await fetch(`${API_URL}?curso=${curso}&tema=${tema}`);
+      if (!res.ok) throw new Error("Error en la petición");
+      const data = await res.json();
 
-      if (curso && tema && temasPorCurso[curso]?.[tema]) {
-        temasPorCurso[curso][tema].forEach(subtema => {
-          const opt = document.createElement("option");
-          opt.value = subtema;
-          opt.textContent = subtema;
-          modoSelect.appendChild(opt);
-        });
-      }
-    });
+      preguntasActuales = data.preguntas || [];
 
-    async function cargarTest() {
-      const curso = document.getElementById("cursoSelect").value;
-      const tema = document.getElementById("temaSelect").value;
-      const modo = document.getElementById("modoSelect").value;
-
-      if (!curso || !tema || !modo) {
-        alert("Selecciona curso, tema y modo");
+      if (preguntasActuales.length === 0) {
+        testArea.innerHTML = "No se generaron preguntas.";
+        btnCorregir.style.display = "none";
         return;
       }
 
-      const url = `https://tu-backend.glitch.me/tests?curso=${curso}&tema=${tema}&modo=${modo}`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const container = document.getElementById("testContainer");
-      container.innerHTML = "";
-
-      data.preguntas.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "pregunta";
-        div.innerHTML = `
-          <strong>Pregunta ${i + 1}:</strong> ${p.pregunta}<br><br>
-          <input type="text" id="resp${i}" placeholder="Tu respuesta">
-          <button onclick="verificar(${i}, '${p.respuesta}')">Comprobar</button>
-          <p id="resultado${i}"></p>
+      // Mostrar preguntas con input
+      let html = "";
+      preguntasActuales.forEach((p, i) => {
+        html += `
+          <div class="pregunta">
+            <b>Pregunta ${i+1}:</b> ${p.pregunta} <br/>
+            <input type="text" id="respuesta-${i}" />
+            <span id="feedback-${i}"></span>
+          </div>
         `;
-        container.appendChild(div);
       });
+      testArea.innerHTML = html;
+      btnCorregir.style.display = "inline-block";
+    } catch (e) {
+      testArea.innerHTML = "Error al generar el test.";
+      btnCorregir.style.display = "none";
+      console.error(e);
     }
+  };
 
-    function verificar(i, correcta) {
-      const resp = document.getElementById("resp" + i).value.trim();
-      const resultado = document.getElementById("resultado" + i);
+  btnCorregir.onclick = () => {
+    preguntasActuales.forEach((p, i) => {
+      const userResp = document.getElementById(`respuesta-${i}`).value.trim();
+      const feedback = document.getElementById(`feedback-${i}`);
 
-      if (resp === correcta) {
-        resultado.textContent = "¡Correcto!";
-        resultado.className = "respuesta-correcta";
+      if (userResp === p.respuesta) {
+        feedback.textContent = " ¡Correcto!";
+        feedback.className = "correcto";
       } else {
-        resultado.textContent = `Incorrecto. La respuesta era: ${correcta}`;
-        resultado.className = "respuesta-incorrecta";
+        feedback.textContent = ` Incorrecto. La respuesta correcta es ${p.respuesta}`;
+        feedback.className = "error";
       }
-    }
-  </script>
+    });
+  };
+</script>
 
 </body>
 </html>
+
 
 
 
