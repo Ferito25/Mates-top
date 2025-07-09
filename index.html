@@ -6,7 +6,6 @@
   <title>Matemáticas para Primaria</title>
   <link rel="icon" href="favicon.ico" />
   <style>
-    /* Fuentes y colores amigables */
     @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
     body {
       margin: 0;
@@ -122,7 +121,6 @@
       border-radius: 12px;
       margin-top: 18px;
     }
-    /* Texto respuesta correcta debajo */
     .respuesta-correcta {
       font-size: 0.9rem;
       color: #3e5f00;
@@ -132,10 +130,7 @@
   </style>
 </head>
 <body>
-  <header>
-    Matemáticas Divertidas para 1º de Primaria
-  </header>
-
+  <header>Matemáticas Divertidas para 1º de Primaria</header>
   <nav>
     <a onclick="mostrar('inicio')">Inicio</a>
     <a onclick="mostrar('tests')">Generador de Tests</a>
@@ -172,69 +167,22 @@
     <div id="contenidoTeoria" style="white-space: pre-line; margin-top: 18px;"></div>
   </section>
 
-  <footer>
-    &copy; 2025 Matemáticas Divertidas para Primaria
-  </footer>
+  <footer>&copy; 2025 Matemáticas Divertidas para Primaria</footer>
 
 <script>
-  // Temas para test y teoría solo 1º primaria
   const temas1Primaria = [
-    "Números hasta el 9 / Comparación",
-    "El número 10, suma y resta hasta 10",
-    "Números hasta el 19, anterior/posterior",
-    "Sumas y restas hasta 19 / Sumas de 3 números",
-    "Números hasta 39, decenas y unidades, sumas de dos cifras sin llevar"
+    "numeros",
+    "suma",
+    "resta"
   ];
 
-  // Texto de teoría asociados a temas y definiciones
-  const definiciones = {
-    "Numeros naturales": "Son los números que llamamos de contar. Son con los que se trabajará aquí aunque con muy pocos de ellos.\nLos números del 0-10 son los siguientes: 0,1,2,3,4,5,6,7,8,9,10.",
-    "Suma de dos números": "Consiste en fijar un número y añadirle lo que nos indica el otro. En la suma 3+2, pensemos en que tenemos 3 caramelos. El + nos dice que nos dan caramelos, y el 2, que nos dan exactamente 2. Luego si tenía 3 y me dan 2, pues ahora tengo 5.",
-    "Resta": "Fijamos el primer número, y ahora le quitamos lo que indica el segundo. Véase 4-1. Si tengo 4 caramelos y me quitan uno me quedo con 3.",
-    "Unidades": "Cuando tenemos un número de un dígito, a esa cifra se le llama unidad.",
-    "Decenas": "Cuando un número de contar tiene 2 cifras, la decena ocupa el lugar 2º comenzando a contar desde la derecha. Las unidades serían desde donde empiezo a contar.",
-    "Comparación": 'Para comparar dos números usamos los siguientes signos de puntuación: ">" para decir que un número es mayor que otro (Ejemplo: 2 > 1), y "<", un número es menor que otro (ejemplo 1 < 3). Para pensar en cómo comparar es importante situar bien los números, y se recomienda hacer una enumeración de los números hasta que me aparezcan los dos a comparar. Una vez he escrito los 2 en la recta, los rodeo, y veo cuál he escrito antes y cuál después. El que haya escrito antes es menor. Y escojo entonces el signo que necesite en cada caso.',
-    "Suma con llevadas": "Cuando sumamos dos números y nos da más de 10 en una columna, pasamos una decena a la siguiente."
-  };
+  const BACKEND_URL = 'https://matestop-backend.onrender.com';
 
-  // Qué definiciones poner para cada tema (puede repetirse)
-  const teoriaPorTema = {
-    "Números hasta el 9 / Comparación": [
-      "Numeros naturales",
-      "Comparación",
-      "Unidades"
-    ],
-    "El número 10, suma y resta hasta 10": [
-      "Numeros naturales",
-      "Suma de dos números",
-      "Resta",
-      "Unidades"
-    ],
-    "Números hasta el 19, anterior/posterior": [
-      "Numeros naturales",
-      "Unidades"
-    ],
-    "Sumas y restas hasta 19 / Sumas de 3 números": [
-      "Numeros naturales",
-      "Suma de dos números",
-      "Resta",
-      "Unidades"
-    ],
-    "Números hasta 39, decenas y unidades, sumas de dos cifras sin llevar": [
-      "Numeros naturales",
-      "Unidades",
-      "Decenas",
-      "Suma de dos números"
-    ]
-  };
-
-  // Mostrar una sección y ocultar las demás
   function mostrar(seccion) {
     document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
     document.getElementById(seccion).classList.remove('hidden');
   }
 
-  // Actualizar select de temas en Tests
   function actualizarTemasTest() {
     const selectTema = document.getElementById("temaTest");
     selectTema.innerHTML = "";
@@ -246,7 +194,6 @@
     });
   }
 
-  // Actualizar select de temas en Teoría
   function actualizarTemasTeoria() {
     const selectTema = document.getElementById("temaTeoria");
     selectTema.innerHTML = "";
@@ -256,38 +203,15 @@
       option.textContent = tema;
       selectTema.appendChild(option);
     });
-    mostrarTeoria();
   }
 
-  // Mostrar teoría según tema
-  function mostrarTeoria() {
-    const tema = document.getElementById("temaTeoria").value;
-    const cont = document.getElementById("contenidoTeoria");
-    if (!tema) {
-      cont.textContent = "";
-      return;
-    }
-    const definicionesTema = teoriaPorTema[tema] || [];
-    let texto = "";
-    definicionesTema.forEach(def => {
-      texto += definiciones[def] + "\n\n";
-    });
-    cont.textContent = texto.trim();
-  }
-
-  // URL backend preguntas
-  const BACKEND_URL = 'https://matestop-backend.onrender.com';
-
-  // Generar preguntas para test
   async function generarPreguntas() {
     const curso = document.getElementById("cursoTest").value;
     const tema = document.getElementById("temaTest").value;
-    console.log("Generando preguntas para:", curso, tema);
     const container = document.getElementById("testContainer");
     container.innerHTML = "<p>Cargando preguntas...</p>";
     try {
-      const resp = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${encodeURIComponent(tema)}`);
-      if (!resp.ok) throw new Error("Error al obtener preguntas");
+      const resp = await fetch(${BACKEND_URL}/preguntas?curso=${curso}&tema=${tema});
       const preguntas = await resp.json();
       if (!preguntas.length) {
         container.innerHTML = "<p>No hay preguntas para este tema.</p>";
@@ -297,7 +221,7 @@
       preguntas.forEach((p, i) => {
         html += `<div class="question">
           <div><strong>Pregunta ${i + 1}:</strong> ${p.pregunta}</div>
-          <input type="text" id="resp${i}" data-correcta="${p.respuesta}" aria-label="Respuesta pregunta ${i + 1}" />
+          <input type="text" id="resp${i}" data-correcta="${p.respuesta}" />
           <div class="respuesta-correcta hidden" id="correcta${i}"></div>
         </div>`;
       });
@@ -307,7 +231,6 @@
     }
   }
 
-  // Corregir respuestas de test
   function corregirPreguntas() {
     const container = document.getElementById("testContainer");
     if (!container.children.length) return alert("Genera el test primero.");
@@ -315,8 +238,7 @@
     inputs.forEach((input, i) => {
       const correcto = input.dataset.correcta.toLowerCase().trim();
       const dado = input.value.toLowerCase().trim();
-      const divRespuesta = document.getElementById(`correcta${i}`);
-
+      const divRespuesta = document.getElementById(correcta${i});
       if (dado === correcto) {
         input.parentElement.classList.add("correct");
         input.parentElement.classList.remove("incorrect");
@@ -331,13 +253,11 @@
     });
   }
 
-  // Inicializar select temas al cargar la página
   actualizarTemasTest();
   actualizarTemasTeoria();
 </script>
 </body>
 </html>
-
 
 
 
