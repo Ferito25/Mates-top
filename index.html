@@ -211,7 +211,7 @@
     const container = document.getElementById("testContainer");
     container.innerHTML = "<p>Cargando preguntas...</p>";
     try {
-      const resp = await fetch(${BACKEND_URL}/preguntas?curso=${curso}&tema=${tema});
+      const resp = await fetch(`${BACKEND_URL}/preguntas?curso=${curso}&tema=${tema}`);
       const preguntas = await resp.json();
       if (!preguntas.length) {
         container.innerHTML = "<p>No hay preguntas para este tema.</p>";
@@ -238,7 +238,7 @@
     inputs.forEach((input, i) => {
       const correcto = input.dataset.correcta.toLowerCase().trim();
       const dado = input.value.toLowerCase().trim();
-      const divRespuesta = document.getElementById(correcta${i});
+      const divRespuesta = document.getElementById(`correcta${i}`);
       if (dado === correcto) {
         input.parentElement.classList.add("correct");
         input.parentElement.classList.remove("incorrect");
